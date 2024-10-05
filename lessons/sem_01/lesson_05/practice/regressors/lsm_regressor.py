@@ -27,6 +27,8 @@ class RegressorLSM(RegressorABC):
         self._abscissa = list(abscissa)
         self._ordinates = list(ordinates)
         
+        # Чтобы не считать их каждый раз в _get_approximation()
+        # average() из numpy
         x_avg = average(self._abscissa)
         y_avg = average(self._ordinates)
         x_squares_avg = average([x**2 for x in self._abscissa])
@@ -34,9 +36,9 @@ class RegressorLSM(RegressorABC):
 
         self._a = (xy_avg - (x_avg * y_avg)) / (x_squares_avg - (x_avg ** 2))
         self._b = y_avg - self._a * x_avg
-        
 
     def predict(self, abscissa: Union[Real, Sequence[Real]]) -> list:
+
         if self._abscissa is None or self._ordinates is None:
             raise RuntimeError("Call method fit() firstly")
 
@@ -44,7 +46,6 @@ class RegressorLSM(RegressorABC):
             return [self._get_approximation(abscissa)]
 
         return [self._get_approximation(abscissa_i) for abscissa_i in abscissa]
-    
 
     def _get_approximation(self, abscissa: Real) -> float:
         return self._a * abscissa + self._b
