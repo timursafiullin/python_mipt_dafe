@@ -54,7 +54,7 @@ class PeriodActiveUsers:
         self._users_list.insert(0, frozenset(list(users)))
 
         # Я мог бы обойтись тремя аттрибутами класса, и здесь, вместо очищения множества,
-        # каждый раз после добавления active users объявлять новый unique_users типа frozenset/set
+        # каждый раз после добавления active users объявлять новый unique_users типа set
         self.__unique_users.clear()
         for users in self._users_list:
             self.__unique_users |= users
