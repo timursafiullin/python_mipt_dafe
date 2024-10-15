@@ -4,7 +4,7 @@ from numbers import Real
 
 
 class PeriodActiveUsers:
-    _users_list: list[list]
+    _users_list: list[frozenset]
     _accumulation_period: int
 
     def __init__(self, accumulation_period: int) -> None:
@@ -20,6 +20,7 @@ class PeriodActiveUsers:
                 для получения целого числа.
             ValueError, если после округления accumulation_period - число, меньшее 1.
         """
+
         if not isinstance(accumulation_period, Real):
             raise TypeError("Accumulation period must be real number")
         
@@ -27,7 +28,7 @@ class PeriodActiveUsers:
             raise ValueError("Accumulation period must be equal or more than 1")
         
         self._accumulation_period = int(round(accumulation_period))
-        self._users_list = list[list]()
+        self._users_list = list[frozenset]()
         
 
     def add_active_users_for_curr_day(self, users: Sequence[UUID]) -> None:
@@ -38,6 +39,7 @@ class PeriodActiveUsers:
             users: последовательность UUID пользователей, посетивших ресурс
                 в данный день.
         """
+
         if not isinstance(users, Sequence):
             raise TypeError("Users must be a sequence")
         
@@ -47,13 +49,16 @@ class PeriodActiveUsers:
         if len(self._users_list) == self._accumulation_period:
             del self._users_list[self._accumulation_period - 1]
 
-        self._users_list.insert(0, list(users))
+        self._users_list.insert(0, frozenset(list(users)))
 
     @property
     def unique_users_amount(self) -> int:
         """Число уникальных пользователей за последние accumulation_period дней."""
-        # ваш код
-        pass
+        unique_users = frozenset()
+        for users in self._users_list:
+            unique_users |= users
+        return len(unique_users)
+
 
     @property
     def accumulation_period(self) -> int:
@@ -62,16 +67,8 @@ class PeriodActiveUsers:
 
 
 
-obj1 = PeriodActiveUsers(accumulation_period=2)
-
-obj1.add_active_users_for_curr_day(
-    [
-        UUID("2509a9eb-2422-4b83-8911-f780eea815bb"),
-        UUID("f52fc9b2-2ff2-4419-9f07-22267946b46e"),
-    ]
-)
-
-obj1.add_active_users_for_curr_day(
+pau = PeriodActiveUsers(accumulation_period=3)
+pau.add_active_users_for_curr_day(
     [
         UUID("52d6f353-4dd3-421b-b1c4-c35d2ae9ad66"),
         UUID("3f06aef7-bf3a-41f8-b571-3453a3b27aa9"),
@@ -82,10 +79,4 @@ obj1.add_active_users_for_curr_day(
     ],
 )
 
-obj1.add_active_users_for_curr_day(
-    [
-        UUID("52d6f353-4dd3-421b-b1c4-c35d2ae9ad66"),
-        UUID("52d6f353-4dd3-421b-b1c4-c35d2ae9ad66"),
-        UUID("b6595baa-a23a-4e22-8656-079f84c7c3a4")
-    ]
-)
+assert pau.unique_users_amount == 3
