@@ -1,8 +1,12 @@
 from uuid import UUID
 from typing import Sequence
+from numbers import Real
 
 
 class PeriodActiveUsers:
+    _users_list: list[list]
+    _accumulation_period: int
+
     def __init__(self, accumulation_period: int) -> None:
         """
         Инициализирует объект для подсчета числа уникальных пользователей.
@@ -16,8 +20,15 @@ class PeriodActiveUsers:
                 для получения целого числа.
             ValueError, если после округления accumulation_period - число, меньшее 1.
         """
-        # ваш код
-        pass
+        if not isinstance(accumulation_period, Real):
+            raise TypeError("Accumulation period must be real number")
+        
+        if round(accumulation_period) < 1:
+            raise ValueError("Accumulation period must be equal or more than 1")
+        
+        self._accumulation_period = int(round(accumulation_period))
+        self._users_list = list[list]()
+        
 
     def add_active_users_for_curr_day(self, users: Sequence[UUID]) -> None:
         """
@@ -27,8 +38,16 @@ class PeriodActiveUsers:
             users: последовательность UUID пользователей, посетивших ресурс
                 в данный день.
         """
-        # ваш код
-        pass
+        if not isinstance(users, Sequence):
+            raise TypeError("Users must be a sequence")
+        
+        if not all(isinstance(user, UUID) for user in users):
+            raise TypeError("Each user must have UUID")
+        
+        if len(self._users_list) == self._accumulation_period:
+            del self._users_list[self._accumulation_period - 1]
+
+        self._users_list.insert(0, list(users))
 
     @property
     def unique_users_amount(self) -> int:
@@ -39,5 +58,34 @@ class PeriodActiveUsers:
     @property
     def accumulation_period(self) -> int:
         """Период расчета метрики: accumulation_period."""
-        # ваш код
-        pass
+        return self._accumulation_period
+
+
+
+obj1 = PeriodActiveUsers(accumulation_period=2)
+
+obj1.add_active_users_for_curr_day(
+    [
+        UUID("2509a9eb-2422-4b83-8911-f780eea815bb"),
+        UUID("f52fc9b2-2ff2-4419-9f07-22267946b46e"),
+    ]
+)
+
+obj1.add_active_users_for_curr_day(
+    [
+        UUID("52d6f353-4dd3-421b-b1c4-c35d2ae9ad66"),
+        UUID("3f06aef7-bf3a-41f8-b571-3453a3b27aa9"),
+        UUID("b6595baa-a23a-4e22-8656-079f84c7c3a4"),
+        UUID("52d6f353-4dd3-421b-b1c4-c35d2ae9ad66"),
+        UUID("52d6f353-4dd3-421b-b1c4-c35d2ae9ad66"),
+        UUID("b6595baa-a23a-4e22-8656-079f84c7c3a4"),
+    ],
+)
+
+obj1.add_active_users_for_curr_day(
+    [
+        UUID("52d6f353-4dd3-421b-b1c4-c35d2ae9ad66"),
+        UUID("52d6f353-4dd3-421b-b1c4-c35d2ae9ad66"),
+        UUID("b6595baa-a23a-4e22-8656-079f84c7c3a4")
+    ]
+)
