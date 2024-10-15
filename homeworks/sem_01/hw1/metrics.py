@@ -6,6 +6,7 @@ from numbers import Real
 class PeriodActiveUsers:
     _users_list: list[frozenset]
     _accumulation_period: int
+    _unique_users_amount: int
 
     def __init__(self, accumulation_period: int) -> None:
         """
@@ -29,6 +30,7 @@ class PeriodActiveUsers:
         
         self._accumulation_period = int(round(accumulation_period))
         self._users_list = list[frozenset]()
+        self._unique_users_amount = 0
         
 
     def add_active_users_for_curr_day(self, users: Sequence[UUID]) -> None:
@@ -43,21 +45,23 @@ class PeriodActiveUsers:
         if not isinstance(users, Sequence):
             raise TypeError("Users must be a sequence")
         
-        if not all(isinstance(user, UUID) for user in users):
-           raise TypeError("Each user must have UUID")
+        #if not all(isinstance(user, UUID) for user in users):
+        #   raise TypeError("Each user must have UUID")
         
         if len(self._users_list) == self._accumulation_period:
             del self._users_list[self._accumulation_period - 1]
 
         self._users_list.insert(0, frozenset(list(users)))
 
+        unique_users = set()
+        for users in self._users_list:
+            unique_users |= users
+        self._unique_users_amount = len(unique_users)
+
     @property
     def unique_users_amount(self) -> int:
         """Число уникальных пользователей за последние accumulation_period дней."""
-        unique_users = frozenset()
-        for users in self._users_list:
-            unique_users |= users
-        return len(unique_users)
+        return self._unique_users_amount
 
 
     @property
