@@ -1,5 +1,5 @@
 from uuid import UUID
-from typing import Sequence, Union
+from typing import Sequence
 from numbers import Real
 
 
