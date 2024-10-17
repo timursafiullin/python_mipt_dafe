@@ -31,15 +31,15 @@ def lru_cache(capacity: int) -> Callable[[T], T]:
     cache = {}
 
     def _lru_realise(func):
+
         def wrapper(*args, **kwargs):
 
-            # Пробовал с frozenset, set, tuple - с последним работает быстрее
+            # Пробовал с frozenset, set, tuple. С последним работает быстрее.
             arguments = (args, tuple(kwargs.items()))
 
             if arguments not in tuple(cache.keys()):
                 result = func(*args, **kwargs)
-
-                if len(cache) >= capacity:
+                if len(cache) == capacity:
                     # Удаление самого "неиспользуемого" элемента из списка
                     # (первый элемент в списке - это самый "неиспользуемый"
                     for k in cache.keys():
@@ -47,8 +47,9 @@ def lru_cache(capacity: int) -> Callable[[T], T]:
                         break
                 cache[arguments] = result
                 return result
-            
-            # Перевод в "начало"
+
+            # Перевод только что использованного
+            # элемента в "начало" (конец)
             copy = cache[arguments]
             del cache[arguments]
             cache[arguments] = copy

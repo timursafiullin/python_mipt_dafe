@@ -24,14 +24,13 @@ class PeriodActiveUsers:
 
         if not isinstance(accumulation_period, Real):
             raise TypeError("Accumulation period must be real number")
-        
+
         if round(accumulation_period) < 1:
             raise ValueError("Accumulation period must be equal or more than 1")
-        
+
         self._accumulation_period = int(round(accumulation_period))
         self._users_list = list[frozenset]()
         self._unique_users_amount = 0
-        
 
     def add_active_users_for_curr_day(self, users: Sequence[UUID]) -> None:
         """
@@ -42,12 +41,6 @@ class PeriodActiveUsers:
                 в данный день.
         """
 
-        if not isinstance(users, Sequence):
-            raise TypeError("Users must be a sequence")
-        
-        #if not all(isinstance(user, UUID) for user in users):
-        #   raise TypeError("Each user must have UUID")
-        
         if len(self._users_list) == self._accumulation_period:
             del self._users_list[self._accumulation_period - 1]
 
@@ -62,7 +55,6 @@ class PeriodActiveUsers:
     def unique_users_amount(self) -> int:
         """Число уникальных пользователей за последние accumulation_period дней."""
         return self._unique_users_amount
-
 
     @property
     def accumulation_period(self) -> int:
