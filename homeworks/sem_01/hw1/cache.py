@@ -36,7 +36,7 @@ def lru_cache(capacity: int) -> Callable[[T], T]:
             # Пробовал с frozenset, set, tuple. С последним работает быстрее.
             arguments = (args, tuple(kwargs.items()))
 
-            # Sorted O(nlogn)
+            # Sorted O(nlogn) - учитывать ли?
             if arguments not in tuple(sorted(cache.keys())):
                 result = func(*args, **kwargs)
                 if len(cache) == capacity:
