@@ -5,6 +5,7 @@ from typing import (
 
 T = TypeVar("T")
 
+
 def lru_cache(capacity: int) -> Callable[[T], T]:
     """
     Параметризованный декоратор для реализации LRU-кеширования.
@@ -30,30 +31,35 @@ def lru_cache(capacity: int) -> Callable[[T], T]:
     cache = {}
 
     def _lru_realise(func):
-
         def wrapper(*args, **kwargs):
-
-            # Пробовал с frozenset, set, tuple. С последним работает быстрее.
             arguments = (args, tuple(kwargs.items()))
+            
+            print("ARGUMENTS: ", arguments)
+            print("TUPLE OF KEYS: ", tuple(cache.keys()))
 
-            # Sorted O(nlogn)
-            if arguments not in tuple(sorted(cache.keys())):
+            if arguments not in tuple(cache.keys()):
                 result = func(*args, **kwargs)
+
                 if len(cache) == capacity:
-                    # Удаление самого "неиспользуемого" элемента из списка
-                    # (первый элемент в списке - это самый "неиспользуемый"
+                    # Удаление первого элемента
                     for k in cache.keys():
+                        print('>> DELETING: ', (k, cache[k]))
                         del cache[k]
                         break
-                cache[arguments] = result
-                return result
 
-            # Перевод только что использованного
-            # элемента в "начало" (конец)
+                cache[arguments] = result
+
+                print(">> PASTED: ", arguments, " --- RESULTED: ", cache[arguments])
+
+                return result
             copy = cache[arguments]
             del cache[arguments]
             cache[arguments] = copy
-
+            print("------------------FOUNDED IN CACHE---------------------")
+            print("CACHE[ARGUMENTS] = ", cache[arguments])
+            print("LEN OF CACHE: ", len(cache), " --- CAPACITY: ", capacity)
+            print("--------------------------------------------------------")
             return cache[arguments]
         return wrapper
     return _lru_realise
+
