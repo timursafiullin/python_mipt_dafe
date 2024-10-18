@@ -5,6 +5,7 @@ from typing import (
 
 T = TypeVar("T")
 
+
 def lru_cache(capacity: int) -> Callable[[T], T]:
     """
     Параметризованный декоратор для реализации LRU-кеширования.
