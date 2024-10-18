@@ -34,10 +34,10 @@ def lru_cache(capacity: int) -> Callable[[T], T]:
         def wrapper(*args, **kwargs):
 
             # Пробовал с frozenset, set, tuple. С последним работает быстрее.
-            arguments = (args, tuple(kwargs.items()))
-
             # Sorted O(nlogn) - учитывать ли?
-            if arguments not in tuple(sorted(cache.keys())):
+            arguments = (args, tuple(sorted(kwargs.items())))
+
+            if arguments not in tuple(cache.keys()):
                 result = func(*args, **kwargs)
                 if len(cache) == capacity:
                     # Удаление самого "неиспользуемого" элемента из списка
