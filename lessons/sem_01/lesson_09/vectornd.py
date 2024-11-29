@@ -13,7 +13,7 @@ class VectorND:
             raise ValueError("Vector components cannot be empty")
 
     def __str__(self):
-        string = ", ".join(str(i) for i in self._components)
+        string = ", ".join(str(int(i)) if i.is_integer() else str(i) for i in self._components)
         if len(string) <= 10:
             return "VectorND(" + string + ")"
         else:
@@ -32,8 +32,11 @@ class VectorND:
             raise TypeError("Invalid argument type. Vector`s dimension should be more or equal 1.")
 
     def __getitem__(self, key: int):
-        # Если индекс больше длины вектора, исключение возбуждается объектом 'array'
-        if isinstance(key, int) and key >= 1:
+        if isinstance(key, int):
+            if key < 1:
+                raise IndexError("Index should be from 1 to N, where N - count of vector components")
+            if key > len(self):
+                raise IndexError("Index out of range")
             return self._components[key - 1]
 
     def __eq__(self, other: 'VectorND') -> bool:
@@ -50,6 +53,10 @@ class VectorND:
             for elem1, elem2 in zip_longest(self._components, other._components, fillvalue=0):
                 if elem1 < elem2:
                     return True
+                elif elem1 > elem2:
+                    return False
+                else:
+                    continue
             return False
         else:
             raise TypeError("Invalid argument type. Both arguments should be VectorND objects")
