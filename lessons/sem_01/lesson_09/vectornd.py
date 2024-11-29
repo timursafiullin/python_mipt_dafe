@@ -1,5 +1,7 @@
 import array
+from math import sqrt
 from typing import Iterable
+from itertools import zip_longest
 
 class VectorND:
     _components: array
@@ -36,22 +38,95 @@ class VectorND:
 
     def __eq__(self, other: 'VectorND') -> bool:
         if isinstance(other, VectorND):
-            # vector1 - вектор наибольшей размерности, vector2 - наименьшей
-            vector1 = self if len(self) >= len(other) else other
-            vector2 = other if len(self) >= len(other) else self
-
-            for i in range(len(vector1) - len(vector2)):
-                vector2._components.append(0)
-
-            return vector1._components == vector2._components
+            for elem1, elem2 in zip_longest(self._components, other._components, fillvalue=0):
+                if elem1 != elem2:
+                    return False
+            return True
         else:
             raise TypeError("Invalid argument type. Both arguments should be VectorND objects")
 
     def __lt__(self, other: 'VectorND') -> bool:
-        pass
+        if isinstance(other, VectorND):
+            for elem1, elem2 in zip_longest(self._components, other._components, fillvalue=0):
+                if elem1 < elem2:
+                    return True
+            return False
+        else:
+            raise TypeError("Invalid argument type. Both arguments should be VectorND objects")
 
-vec1 = VectorND([1, 2, 3, 0, 0, 1])
-vec2 = VectorND([1, 2, 3, 0, 0, 1])
+    def __le__(self, other: 'VectorND') -> bool:
+        if isinstance(other, VectorND):
+            return self.__eq__(other) or self.__lt__(other)
+        else:
+            raise TypeError("Invalid argument type. Both arguments should be VectorND objects")
 
-print(vec1 != vec2)
+    def __abs__(self) -> float:
+        return sqrt(sum(component ** 2 for component in self._components))
 
+    def __bool__(self) -> bool:
+        return False if abs(self) == 0 else True
+
+    def __mul__(self, number) -> 'VectorND':
+        if isinstance(number, (int, float)):
+            return VectorND(component * number for component in self._components)
+        else:
+            raise TypeError("Invalid argument type. Argument should be a number")
+
+    def __rmul__(self, number) -> 'VectorND':
+        if isinstance(number, (int, float)):
+            return VectorND(component * number for component in self._components)
+        else:
+            raise TypeError("Invalid argument type. Argument should be a number")
+
+    def __truediv__(self, number) -> 'VectorND':
+        if isinstance(number, (int, float)):
+            return self * (1 / number)
+        else:
+            raise TypeError("Invalid argument type. Argument should be a number")
+
+    def __add__(self, other) -> 'VectorND':
+        if isinstance(other, VectorND):
+            components = array.array("d")
+            for c1, c2 in zip_longest(self._components, other._components, fillvalue=0):
+                components.append(c1 + c2)
+            return VectorND(components)
+        if isinstance(other, (int, float)):
+            return VectorND(component + other for component in self._components)
+        else:
+            raise TypeError("Invalid argument type. Arguments should be VectorND or numbers")
+
+    def __radd__(self, other) -> 'VectorND':
+        return self.__add__(other)
+
+    def __neg__(self) -> 'VectorND':
+        return VectorND(-component for component in self._components)
+
+    def __sub__(self, other) -> 'VectorND':
+        if isinstance(other, VectorND):
+            components = array.array("d")
+            for c1, c2 in zip_longest(self._components, other._components, fillvalue=0):
+                components.append(c1 - c2)
+            return VectorND(components)
+        if isinstance(other, (int, float)):
+            return self + (-other)
+        else:
+            raise TypeError("Invalid argument type. Arguments should be VectorND or numbers")
+
+    def __rsub__(self, other) -> 'VectorND':
+        if isinstance(other, (int, float)):
+            return -self + other
+        else:
+            raise TypeError("Invalid argument type. Argument should be a number")
+
+    def __int__(self) -> int:
+        return int(abs(self))
+
+    def __float__(self) -> float:
+        return float(abs(self))
+
+    def __matmul__(self, other: 'VectorND') -> float:
+        if isinstance(other, VectorND):
+            result = sum(a * b for a, b in zip_longest(self._components, other._components, fillvalue=0))
+            return result
+        else:
+            raise TypeError("Invalid argument type. Arguments should be a VectorND")
